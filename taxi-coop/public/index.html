@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoopTaxi — Centro de Despacho</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0a0c10;
+  --surface:   #111318;
+  --surface2:  #181c24;
+  --border:    #1e2530;
+  --accent:    #f5a623;
+  --accent2:   #e8401c;
+  --green:     #22c55e;
+  --red:       #ef4444;
+  --yellow:    #f59e0b;
+  --blue:      #3b82f6;
+  --text:      #e2e8f0;
+  --muted:     #64748b;
+  --font:      'Space Grotesk', sans-serif;
+  --mono:      'JetBrains Mono', monospace;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== LOGIN ===== */
+#login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at 60% 40%, #1a1200 0%, #0a0c10 70%);
+}
+
+.login-box {
+  width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 48px 40px;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+}
+
+.login-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.login-logo .icon {
+  width: 48px;
+  height: 48px;
+  background: var(--accent);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.login-logo h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.login-logo p {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.field {
+  margin-bottom: 16px;
+}
+
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.field input, .field select, .field textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--accent);
+}
+
+.field textarea { resize: vertical; min-height: 70px; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+}
+
+.btn-primary { background: var(--accent); color: #000; }
+.btn-primary:hover { background: #ffc04a; }
+.btn-danger  { background: var(--red); color: #fff; }
+.btn-danger:hover { opacity: 0.85; }
+.btn-success { background: var(--green); color: #000; }
+.btn-success:hover { opacity: 0.85; }
+.btn-ghost   { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-full { width: 100%; justify-content: center; padding: 13px; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+
+/* ===== LAYOUT ===== */
+#app { display: none; min-height: 100vh; }
+
+.sidebar {
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  width: 220px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-logo .icon {
+  width: 36px; height: 36px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+
+.sidebar-logo span {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.3px;
+}
+
+.nav {
+  flex: 1;
+  padding: 16px 12px;
+  overflow-y: auto;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  transition: all 0.15s;
+  margin-bottom: 2px;
+}
+
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: rgba(245,166,35,0.12); color: var(--accent); }
+.nav-item .emoji { font-size: 16px; width: 20px; }
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--surface2);
+}
+
+.user-avatar {
+  width: 32px; height: 32px;
+  background: var(--accent);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px; color: #000;
+  flex-shrink: 0;
+}
+
+.user-name { font-size: 13px; font-weight: 600; }
+.user-rol  { font-size: 11px; color: var(--muted); }
+
+.main {
+  margin-left: 220px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  height: 56px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: sticky; top: 0; z-index: 50;
+}
+
+.topbar h2 { font-size: 16px; font-weight: 700; }
+
+.time-display {
+  font-family: var(--mono);
+  font-size: 15px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.content { flex: 1; padding: 24px; }
+
+/* ===== TABS ===== */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ===== CARDS ===== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.stat-card .label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.stat-card .value {
+  font-size: 32px;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--accent);
+}
+
+.stat-card .sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* ===== DESPACHO GRID ===== */
+.despacho-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 16px;
+  height: calc(100vh - 180px);
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.panel-header h3 {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+/* ===== SERVICIO CARD ===== */
+.servicio-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+
+.servicio-card:hover { border-color: var(--accent); }
+.servicio-card.selected { border-color: var(--accent); background: rgba(245,166,35,0.06); }
+
+.servicio-card .sc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.servicio-card .sc-telefono {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.servicio-card .sc-hora {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+.servicio-card .sc-direccion {
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 6px;
+}
+
+.servicio-card .sc-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ===== BADGES ===== */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge-creado    { background: rgba(59,130,246,0.15); color: #60a5fa; }
+.badge-asignado  { background: rgba(34,197,94,0.15);  color: #4ade80; }
+.badge-reasignado{ background: rgba(245,158,11,0.15); color: #fbbf24; }
+.badge-realizado { background: rgba(34,197,94,0.1);   color: var(--muted); }
+.badge-cancelado { background: rgba(239,68,68,0.15);  color: #f87171; }
+.badge-perdido   { background: rgba(100,116,139,0.2); color: var(--muted); }
+.badge-activo    { background: rgba(34,197,94,0.15);  color: #4ade80; }
+.badge-inactivo  { background: rgba(100,116,139,0.2); color: var(--muted); }
+.badge-socio     { background: rgba(245,166,35,0.15); color: var(--accent); }
+.badge-concesionario { background: rgba(59,130,246,0.15); color: #60a5fa; }
+
+/* ===== UNIDADES ===== */
+.unidades-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.unidad-chip {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.unidad-chip:hover { border-color: var(--accent); }
+.unidad-chip.selected { border-color: var(--accent); background: rgba(245,166,35,0.1); }
+.unidad-chip .num { font-size: 22px; font-family: var(--mono); font-weight: 700; color: var(--accent); }
+.unidad-chip .placa { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+.unidad-chip .conductor { font-size: 11px; color: var(--text); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ===== FORM NUEVO SERVICIO ===== */
+.nuevo-servicio-form {
+  padding: 16px;
+}
+
+.nuevo-servicio-form .field { margin-bottom: 12px; }
+
+/* ===== TABLE ===== */
+.tabla-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+}
+
+thead th {
+  background: var(--surface2);
+  padding: 11px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+tbody td {
+  padding: 11px 14px;
+  font-size: 13px;
+  border-top: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+tbody tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px;
+}
+
+.modal h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+/* ===== NOTIFICACIONES ===== */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  animation: slideIn 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+.toast-success { background: var(--green); color: #000; }
+.toast-error   { background: var(--red); color: #fff; }
+.toast-info    { background: var(--accent); color: #000; }
+
+@keyframes slideIn {
+  from { transform: translateX(100px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1100px) {
+  .despacho-grid { grid-template-columns: 1fr; height: auto; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- ======================================================== -->
+<!-- LOGIN -->
+<!-- ======================================================== -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="icon">🚕</div>
+      <div>
+        <h1>CoopTaxi</h1>
+        <p>Centro de Despacho</p>
+      </div>
+    </div>
+    <div class="field">
+      <label>Usuario</label>
+      <input type="text" id="inp-usuario" placeholder="Ingresa tu usuario" autofocus>
+    </div>
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" id="inp-password" placeholder="••••••••">
+    </div>
+    <div id="login-error" style="color:var(--red);font-size:13px;margin-bottom:12px;display:none;"></div>
+    <button class="btn btn-primary btn-full" onclick="login()">Ingresar al sistema</button>
+    <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:16px;">
+      Usuario: <b>admin</b> · Contraseña: <b>admin123</b>
+    </p>
+  </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- APP -->
+<!-- ======================================================== -->
+<div id="app">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="icon">🚕</div>
+      <span>CoopTaxi</span>
+    </div>
+    <div class="nav">
+      <div class="nav-item active" onclick="navTo('despacho',this)">
+        <span class="emoji">📡</span> Despacho
+      </div>
+      <div class="nav-item" onclick="navTo('servicios',this)">
+        <span class="emoji">🗂️</span> Servicios
+      </div>
+      <div class="nav-item" onclick="navTo('unidades',this)">
+        <span class="emoji">🚖</span> Unidades
+      </div>
+      <div class="nav-item" onclick="navTo('conductores',this)">
+        <span class="emoji">👤</span> Conductores
+      </div>
+      <div class="nav-item" onclick="navTo('socios',this)">
+        <span class="emoji">🏢</span> Socios
+      </div>
+      <div class="nav-item" onclick="navTo('pagos',this)">
+        <span class="emoji">💰</span> Pagos
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="user-avatar">A</div>
+        <div>
+          <div class="user-name" id="user-name">Usuario</div>
+          <div class="user-rol" id="user-rol">ROL</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-full" style="margin-top:8px;font-size:12px;" onclick="logout()">
+        Cerrar sesión
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <h2 id="page-title">Despacho</h2>
+      <div class="time-display" id="clock">--:--:--</div>
+    </div>
+    <div class="content">
+
+      <!-- ===== DESPACHO ===== -->
+      <div class="page active" id="page-despacho">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="label">🟢 Unidades activas</div>
+            <div class="value" id="st-unidades">0</div>
+            <div class="sub">En turno ahora</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">⏳ Pendientes</div>
+            <div class="value" id="st-pendientes">0</div>
+            <div class="sub">Sin asignar</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">✅ Realizados hoy</div>
+            <div class="value" id="st-realizados">0</div>
+            <div class="sub">Servicios completados</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">❌ Cancelados</div>
+            <div class="value" id="st-cancelados">0</div>
+            <div class="sub">Hoy</div>
+          </div>
+        </div>
+
+        <div class="despacho-grid">
+          <!-- Servicios activos -->
+          <div class="panel">
+            <div class="panel-header">
+              <h3>📋 Servicios en curso</h3>
+              <button class="btn btn-primary btn-sm" onclick="openModal('modal-nuevo-servicio')">+ Nuevo</button>
+            </div>
+            <div class="panel-body" id="servicios-pendientes-list">
+              <p style="color:var(--muted);font-size:13px;text-align:center;padding:40px;">Sin servicios activos</p>
+            </div>
+          </div>
+
+          <!-- Unidades disponibles -->
+          <div class="panel">
+            <div class="panel-header">
+              <h3>🚕 Unidades en turno</h3>
+              <span id="badge-unidades-activas" class="badge badge-activo">0</span>
+            </div>
+            <div class="panel-body">
+              <div id="unidades-activas-grid" class="unidades-grid"></div>
+              <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:4px;">
+                <h4 style="font-size:12px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">Acciones rápidas</h4>
+                <button class="btn btn-ghost btn-full btn-sm" style="margin-bottom:6px;" onclick="openModal('modal-f4')">📡 F4 — Ingresar unidad</button>
+                <button class="btn btn-ghost btn-full btn-sm" onclick="openModal('modal-f2')">⏱ F2 — Tiempo aire</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SERVICIOS HISTORIAL ===== -->
+      <div class="page" id="page-servicios">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+          <div class="field" style="margin:0;flex:0 0 160px;">
+            <input type="date" id="filtro-fecha" onchange="cargarServicios()">
+          </div>
+          <div class="field" style="margin:0;flex:0 0 160px;">
+            <select id="filtro-estado" onchange="cargarServicios()">
+              <option value="">Todos los estados</option>
+              <option>CREADO</option><option>ASIGNADO</option>
+              <option>REALIZADO</option><option>CANCELADO</option><option>PERDIDO</option>
+            </select>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="cargarServicios()">🔄 Actualizar</button>
+        </div>
+        <div class="tabla-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Teléfono</th><th>Dirección</th><th>Unidad</th>
+                <th>Conductor</th><th>Estado</th><th>Hora</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="servicios-tabla"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== UNIDADES ===== -->
+      <div class="page" id="page-unidades">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <h3 style="font-size:16px;">Registro de Unidades</h3>
+          <button class="btn btn-primary btn-sm" onclick="openModal('modal-nueva-unidad')">+ Nueva unidad</button>
+        </div>
+        <div class="tabla-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Placa</th><th>Tipo</th><th>Propietario</th>
+                <th>Turno</th><th>Estado</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="unidades-tabla"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== CONDUCTORES ===== -->
+      <div class="page" id="page-conductores">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <h3 style="font-size:16px;">Conductores Registrados</h3>
+          <button class="btn btn-primary btn-sm" onclick="openModal('modal-nuevo-conductor')">+ Nuevo conductor</button>
+        </div>
+        <div class="tabla-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre</th><th>Cédula</th><th>Teléfono</th>
+                <th>Tipo</th><th>Socio</th><th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="conductores-tabla"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== SOCIOS ===== -->
+      <div class="page" id="page-socios">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <h3 style="font-size:16px;">Socios de la Cooperativa</h3>
+          <button class="btn btn-primary btn-sm" onclick="openModal('modal-nuevo-socio')">+ Nuevo socio</button>
+        </div>
+        <div class="tabla-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre</th><th>Cédula</th><th>Teléfono</th>
+                <th>Dirección</th><th>Fecha ingreso</th><th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="socios-tabla"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== PAGOS ===== -->
+      <div class="page" id="page-pagos">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+          <div class="field" style="margin:0;">
+            <select id="filtro-mes">
+              <option value="1">Enero</option><option value="2">Febrero</option>
+              <option value="3">Marzo</option><option value="4">Abril</option>
+              <option value="5">Mayo</option><option value="6">Junio</option>
+              <option value="7">Julio</option><option value="8">Agosto</option>
+              <option value="9">Septiembre</option><option value="10">Octubre</option>
+              <option value="11">Noviembre</option><option value="12">Diciembre</option>
+            </select>
+          </div>
+          <div class="field" style="margin:0;">
+            <input type="number" id="filtro-anio" value="2024" min="2020" max="2030" style="width:100px;">
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="cargarPagos()">🔄 Ver pagos</button>
+        </div>
+        <div class="tabla-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Unidad</th><th>Placa</th><th>Socio</th>
+                <th>Mes</th><th>Valor</th><th>Estado</th><th>Fecha pago</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="pagos-tabla"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div><!-- /app -->
+
+<!-- ======================================================== -->
+<!-- MODALES -->
+<!-- ======================================================== -->
+
+<!-- Nuevo Servicio -->
+<div class="modal-overlay" id="modal-nuevo-servicio">
+  <div class="modal">
+    <h3>📞 Nuevo Servicio</h3>
+    <div class="field">
+      <label>Teléfono cliente</label>
+      <input type="text" id="ns-telefono" placeholder="0999..." oninput="buscarCliente(this.value)">
+    </div>
+    <div id="ns-cliente-info" style="font-size:12px;color:var(--muted);margin:-6px 0 10px;padding:6px;background:var(--surface2);border-radius:6px;display:none;"></div>
+    <div class="field">
+      <label>Dirección de recogida</label>
+      <input type="text" id="ns-direccion" placeholder="Calle, sector...">
+    </div>
+    <div class="field">
+      <label>Referencia</label>
+      <input type="text" id="ns-referencia" placeholder="Referencia del lugar">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-nuevo-servicio')">Cancelar</button>
+      <button class="btn btn-primary" onclick="crearServicio()">Crear servicio</button>
+    </div>
+  </div>
+</div>
+
+<!-- Asignar Unidad -->
+<div class="modal-overlay" id="modal-asignar">
+  <div class="modal">
+    <h3>🚕 Asignar Unidad</h3>
+    <p id="asignar-info" style="font-size:13px;color:var(--muted);margin-bottom:16px;"></p>
+    <div class="field">
+      <label>Selecciona unidad activa</label>
+      <select id="asignar-unidad" onchange="actualizarConductorAsignar()">
+        <option value="">— Seleccionar —</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Conductor</label>
+      <select id="asignar-conductor">
+        <option value="">— Conductor —</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-asignar')">Cancelar</button>
+      <button class="btn btn-primary" onclick="asignarUnidad()">Asignar</button>
+    </div>
+  </div>
+</div>
+
+<!-- F4 Ingresar Unidad -->
+<div class="modal-overlay" id="modal-f4">
+  <div class="modal">
+    <h3>📡 F4 — Registrar Ingreso</h3>
+    <div class="field">
+      <label>Unidad</label>
+      <select id="f4-unidad">
+        <option value="">— Seleccionar —</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Conductor (opcional)</label>
+      <select id="f4-conductor">
+        <option value="">— Seleccionar —</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-f4')">Cancelar</button>
+      <button class="btn btn-success" onclick="ingresarUnidad()">✅ Registrar ingreso</button>
+    </div>
+  </div>
+</div>
+
+<!-- F2 Tiempo Aire -->
+<div class="modal-overlay" id="modal-f2">
+  <div class="modal">
+    <h3>⏱ F2 — Tiempo Aire</h3>
+    <div class="field">
+      <label>Unidad</label>
+      <select id="f2-unidad">
+        <option value="">— Seleccionar activa —</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Minutos</label>
+      <input type="number" id="f2-minutos" value="5" min="1" max="60">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-f2')">Cancelar</button>
+      <button class="btn btn-primary" onclick="registrarTiempoAire()">Registrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Nueva Unidad -->
+<div class="modal-overlay" id="modal-nueva-unidad">
+  <div class="modal">
+    <h3>🚖 Nueva Unidad</h3>
+    <div class="field"><label>Número</label><input type="text" id="nu-numero" placeholder="001"></div>
+    <div class="field"><label>Placa</label><input type="text" id="nu-placa" placeholder="ABC-1234"></div>
+    <div class="field"><label>Tipo</label>
+      <select id="nu-tipo">
+        <option value="SOCIO">Socio</option>
+        <option value="CONCESIONARIO">Concesionario</option>
+      </select>
+    </div>
+    <div class="field"><label>Socio propietario</label><select id="nu-socio"><option value="">— Ninguno —</option></select></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-nueva-unidad')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarUnidad()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Nuevo Conductor -->
+<div class="modal-overlay" id="modal-nuevo-conductor">
+  <div class="modal">
+    <h3>👤 Nuevo Conductor</h3>
+    <div class="field"><label>Nombre</label><input type="text" id="nc-nombre" placeholder="Nombre completo"></div>
+    <div class="field"><label>Cédula</label><input type="text" id="nc-cedula" placeholder="1234567890"></div>
+    <div class="field"><label>Teléfono</label><input type="text" id="nc-telefono" placeholder="09..."></div>
+    <div class="field"><label>WhatsApp</label><input type="text" id="nc-whatsapp" placeholder="09..."></div>
+    <div class="field"><label>Tipo</label>
+      <select id="nc-tipo">
+        <option value="COLABORADOR">Colaborador</option>
+        <option value="SOCIO">Socio</option>
+        <option value="CONCESIONARIO">Concesionario</option>
+      </select>
+    </div>
+    <div class="field"><label>Socio (si aplica)</label><select id="nc-socio"><option value="">— Ninguno —</option></select></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-nuevo-conductor')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarConductor()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Nuevo Socio -->
+<div class="modal-overlay" id="modal-nuevo-socio">
+  <div class="modal">
+    <h3>🏢 Nuevo Socio</h3>
+    <div class="field"><label>Nombre</label><input type="text" id="nso-nombre" placeholder="Nombre completo"></div>
+    <div class="field"><label>Cédula</label><input type="text" id="nso-cedula" placeholder="1234567890"></div>
+    <div class="field"><label>Teléfono</label><input type="text" id="nso-telefono" placeholder="09..."></div>
+    <div class="field"><label>Dirección</label><textarea id="nso-direccion" placeholder="Dirección"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-nuevo-socio')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarSocio()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ======================================================== -->
+<!-- JAVASCRIPT -->
+<!-- ======================================================== -->
+<script>
+const API = '';  // Mismo dominio
+let TOKEN = localStorage.getItem('taxi_token');
+let USER  = JSON.parse(localStorage.getItem('taxi_user') || 'null');
+let servicioSeleccionado = null;
+let unidadesActivas = [];
+let conductoresData = [];
+let sociosData = [];
+
+// ===== API HELPER =====
+async function api(method, path, body) {
+    try {
+        const opts = {
+            method,
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` }
+        };
+        if (body) opts.body = JSON.stringify(body);
+        const r = await fetch(API + '/api' + path, opts);
+        if (r.status === 401) { logout(); return null; }
+        return await r.json();
+    } catch (e) {
+        toast('Error de conexión', 'error');
+        return null;
+    }
+}
+
+// ===== AUTH =====
+async function login() {
+    const usuario  = document.getElementById('inp-usuario').value.trim();
+    const password = document.getElementById('inp-password').value;
+    if (!usuario || !password) return;
+    const data = await fetch(API + '/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usuario, password })
+    });
+    const res = await data.json();
+    if (res.token) {
+        TOKEN = res.token;
+        USER  = res.usuario;
+        localStorage.setItem('taxi_token', TOKEN);
+        localStorage.setItem('taxi_user', JSON.stringify(USER));
+        iniciarApp();
+    } else {
+        document.getElementById('login-error').textContent = res.error || 'Error al ingresar';
+        document.getElementById('login-error').style.display = 'block';
+    }
+}
+
+document.getElementById('inp-password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') login();
+});
+
+function logout() {
+    localStorage.removeItem('taxi_token');
+    localStorage.removeItem('taxi_user');
+    location.reload();
+}
+
+function iniciarApp() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('user-name').textContent = USER.nombre;
+    document.getElementById('user-rol').textContent  = USER.rol;
+    document.getElementById('user-avatar').textContent = USER.nombre[0].toUpperCase();
+    startClock();
+    cargarDatosBase();
+    cargarDespacho();
+    // Actualizar despacho cada 15 segundos
+    setInterval(cargarDespacho, 15000);
+    // Fecha por defecto en historial
+    document.getElementById('filtro-fecha').value = new Date().toISOString().split('T')[0];
+    document.getElementById('filtro-mes').value = new Date().getMonth() + 1;
+    document.getElementById('filtro-anio').value = new Date().getFullYear();
+}
+
+// ===== CLOCK =====
+function startClock() {
+    function tick() {
+        const now = new Date();
+        document.getElementById('clock').textContent = now.toLocaleTimeString('es-EC');
+    }
+    tick();
+    setInterval(tick, 1000);
+}
+
+// ===== NAVEGACIÓN =====
+function navTo(page, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    el.classList.add('active');
+    const titles = {
+        despacho: 'Despacho', servicios: 'Historial de Servicios',
+        unidades: 'Unidades', conductores: 'Conductores',
+        socios: 'Socios', pagos: 'Pagos'
+    };
+    document.getElementById('page-title').textContent = titles[page];
+    if (page === 'servicios') cargarServicios();
+    if (page === 'unidades') cargarUnidades();
+    if (page === 'conductores') cargarConductores();
+    if (page === 'socios') cargarSocios();
+    if (page === 'pagos') cargarPagos();
+}
+
+// ===== CARGA DE DATOS BASE =====
+async function cargarDatosBase() {
+    const [socios, conductores] = await Promise.all([
+        api('GET', '/socios'),
+        api('GET', '/conductores')
+    ]);
+    if (socios)     sociosData     = socios;
+    if (conductores) conductoresData = conductores;
+    poblarSelectSocios();
+    poblarSelectConductores();
+}
+
+function poblarSelectSocios() {
+    const selects = ['nu-socio','nc-socio'];
+    selects.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = '<option value="">— Ninguno —</option>';
+        sociosData.forEach(s => {
+            el.innerHTML += `<option value="${s.id_socio}">${s.nombre}</option>`;
+        });
+    });
+}
+
+function poblarSelectConductores() {
+    ['f4-conductor','asignar-conductor'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = '<option value="">— Seleccionar —</option>';
+        conductoresData.filter(c => c.estado === 'ACTIVO').forEach(c => {
+            el.innerHTML += `<option value="${c.id_conductor}">${c.nombre} (${c.tipo_conductor})</option>`;
+        });
+    });
+}
+
+// ===== DESPACHO =====
+async function cargarDespacho() {
+    const [pendientes, activas, stats] = await Promise.all([
+        api('GET', '/servicios/pendientes'),
+        api('GET', '/unidades/activas'),
+        api('GET', '/estadisticas/hoy')
+    ]);
+    if (stats) {
+        document.getElementById('st-unidades').textContent   = stats.unidades_activas;
+        document.getElementById('st-pendientes').textContent = stats.servicios_pendientes;
+        document.getElementById('st-realizados').textContent = stats.estadisticas.servicios_realizados || 0;
+        document.getElementById('st-cancelados').textContent = stats.estadisticas.servicios_cancelados || 0;
+    }
+    if (activas) {
+        unidadesActivas = activas;
+        renderUnidadesActivas(activas);
+        poblarSelectUnidadesActivas(activas);
+    }
+    if (pendientes) renderServiciosPendientes(pendientes);
+}
+
+function renderServiciosPendientes(servicios) {
+    const el = document.getElementById('servicios-pendientes-list');
+    if (!servicios.length) {
+        el.innerHTML = '<p style="color:var(--muted);font-size:13px;text-align:center;padding:40px;">Sin servicios activos</p>';
+        return;
+    }
+    el.innerHTML = servicios.map(s => `
+        <div class="servicio-card ${servicioSeleccionado?.id_servicio === s.id_servicio ? 'selected' : ''}"
+             onclick="seleccionarServicio(${JSON.stringify(s).replace(/"/g,'&quot;')})">
+            <div class="sc-top">
+                <span class="sc-telefono">📞 ${s.telefono_cliente}</span>
+                <span class="sc-hora">${hora(s.hora_creacion)}</span>
+            </div>
+            <div class="sc-direccion">📍 ${s.direccion}${s.referencia ? ' · ' + s.referencia : ''}</div>
+            <div class="sc-bottom">
+                <span class="badge badge-${s.estado_servicio.toLowerCase()}">${s.estado_servicio}</span>
+                ${s.numero_unidad ? `<span style="font-size:12px;color:var(--accent);font-family:var(--mono)">Unidad ${s.numero_unidad}</span>` : 
+                  `<button class="btn btn-primary btn-sm" onclick="event.stopPropagation();abrirAsignar(${s.id_servicio},'${s.telefono_cliente}','${s.direccion.replace(/'/g,"\\'")}')">Asignar</button>`}
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderUnidadesActivas(unidades) {
+    const grid = document.getElementById('unidades-activas-grid');
+    const badge = document.getElementById('badge-unidades-activas');
+    badge.textContent = unidades.length;
+    if (!unidades.length) {
+        grid.innerHTML = '<p style="color:var(--muted);font-size:12px;text-align:center;padding:16px;">Sin unidades activas</p>';
+        return;
+    }
+    grid.innerHTML = unidades.map(u => `
+        <div class="unidad-chip" title="${u.conductor || 'Sin conductor'}">
+            <div class="num">${u.numero_unidad}</div>
+            <div class="placa">${u.placa || ''}</div>
+            <div class="conductor">${u.conductor || 'Sin conductor'}</div>
+        </div>
+    `).join('');
+}
+
+function poblarSelectUnidadesActivas(unidades) {
+    ['asignar-unidad','f2-unidad','f4-unidad'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (id === 'f4-unidad') return; // F4 es para ingresar, usa todas
+        el.innerHTML = '<option value="">— Seleccionar —</option>';
+        unidades.forEach(u => {
+            el.innerHTML += `<option value="${u.id_unidad}" data-conductor="${u.id_conductor || ''}">${u.numero_unidad} · ${u.placa || ''} (${u.conductor || 'Sin conductor'})</option>`;
+        });
+    });
+}
+
+function seleccionarServicio(s) {
+    servicioSeleccionado = s;
+    renderServiciosPendientes(window._pendientesCache || []);
+}
+
+// ===== NUEVO SERVICIO =====
+let clienteEncontrado = null;
+
+async function buscarCliente(tel) {
+    if (tel.length < 6) return;
+    const data = await api('GET', `/clientes/buscar?telefono=${tel}`);
+    const info = document.getElementById('ns-cliente-info');
+    if (data && data.length > 0) {
+        clienteEncontrado = data[0];
+        info.textContent = `✅ Cliente: ${data[0].nombre || 'Sin nombre'} — ${data[0].direccion_frecuente || ''}`;
+        info.style.display = 'block';
+        if (data[0].direccion_frecuente) {
+            document.getElementById('ns-direccion').value = data[0].direccion_frecuente;
+        }
+    } else {
+        clienteEncontrado = null;
+        info.style.display = 'none';
+    }
+}
+
+async function crearServicio() {
+    const telefono  = document.getElementById('ns-telefono').value.trim();
+    const direccion = document.getElementById('ns-direccion').value.trim();
+    const referencia = document.getElementById('ns-referencia').value.trim();
+    if (!telefono || !direccion) return toast('Teléfono y dirección son requeridos', 'error');
+    const body = { telefono_cliente: telefono, direccion, referencia, id_cliente: clienteEncontrado?.id_cliente || null };
+    const data = await api('POST', '/servicios', body);
+    if (data && data.id_servicio) {
+        toast('Servicio creado', 'success');
+        closeModal('modal-nuevo-servicio');
+        document.getElementById('ns-telefono').value = '';
+        document.getElementById('ns-direccion').value = '';
+        document.getElementById('ns-referencia').value = '';
+        clienteEncontrado = null;
+        document.getElementById('ns-cliente-info').style.display = 'none';
+        cargarDespacho();
+    } else {
+        toast(data?.error || 'Error al crear servicio', 'error');
+    }
+}
+
+// ===== ASIGNAR =====
+let asignarServicioId = null;
+
+function abrirAsignar(id, tel, dir) {
+    asignarServicioId = id;
+    document.getElementById('asignar-info').textContent = `📞 ${tel} — 📍 ${dir}`;
+    poblarSelectConductores();
+    openModal('modal-asignar');
+}
+
+function actualizarConductorAsignar() {
+    const sel = document.getElementById('asignar-unidad');
+    const opt = sel.options[sel.selectedIndex];
+    const conductorId = opt?.dataset?.conductor;
+    if (conductorId) {
+        const selC = document.getElementById('asignar-conductor');
+        selC.value = conductorId;
+    }
+}
+
+async function asignarUnidad() {
+    const id_unidad    = document.getElementById('asignar-unidad').value;
+    const id_conductor = document.getElementById('asignar-conductor').value;
+    if (!id_unidad) return toast('Selecciona una unidad', 'error');
+    const data = await api('PUT', `/servicios/${asignarServicioId}/asignar`, { id_unidad, id_conductor });
+    if (data && data.id_servicio) {
+        toast('Unidad asignada', 'success');
+        closeModal('modal-asignar');
+        cargarDespacho();
+    } else {
+        toast(data?.error || 'Error', 'error');
+    }
+}
+
+// ===== F4 =====
+async function abrirF4() {
+    const todas = await api('GET', '/unidades');
+    if (!todas) return;
+    const inactivas = todas.filter(u => u.estado === 'ACTIVO' && !u.estado_turno);
+    const sel = document.getElementById('f4-unidad');
+    sel.innerHTML = '<option value="">— Seleccionar —</option>';
+    inactivas.forEach(u => {
+        sel.innerHTML += `<option value="${u.id_unidad}">${u.numero_unidad} · ${u.placa}</option>`;
+    });
+}
+
+async function ingresarUnidad() {
+    const id_unidad   = document.getElementById('f4-unidad').value;
+    const id_conductor = document.getElementById('f4-conductor').value;
+    if (!id_unidad) return toast('Selecciona una unidad', 'error');
+    const data = await api('POST', `/unidades/${id_unidad}/ingresar`, { id_conductor });
+    if (data && !data.error) {
+        toast('Unidad ingresada a turno', 'success');
+        closeModal('modal-f4');
+        cargarDespacho();
+    } else {
+        toast(data?.error || 'Error', 'error');
+    }
+}
+
+// ===== F2 =====
+async function registrarTiempoAire() {
+    const id_unidad = document.getElementById('f2-unidad').value;
+    const minutos   = document.getElementById('f2-minutos').value;
+    if (!id_unidad) return toast('Selecciona una unidad', 'error');
+    await api('POST', `/unidades/${id_unidad}/tiempo-aire`, { minutos: parseInt(minutos) });
+    toast('Tiempo aire registrado', 'success');
+    closeModal('modal-f2');
+}
+
+// ===== SERVICIOS HISTORIAL =====
+async function cargarServicios() {
+    const fecha  = document.getElementById('filtro-fecha').value;
+    const estado = document.getElementById('filtro-estado').value;
+    let url = `/servicios?fecha=${fecha}`;
+    if (estado) url += `&estado=${estado}`;
+    const data = await api('GET', url);
+    const tbody = document.getElementById('servicios-tabla');
+    if (!data) return;
+    const meses = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    tbody.innerHTML = data.map(s => `
+        <tr>
+            <td style="font-family:var(--mono);font-size:12px;color:var(--muted)">#${s.id_servicio}</td>
+            <td style="font-family:var(--mono)">${s.telefono_cliente}</td>
+            <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.direccion}</td>
+            <td>${s.numero_unidad ? `<span style="font-family:var(--mono);color:var(--accent)">${s.numero_unidad}</span>` : '—'}</td>
+            <td>${s.conductor_nombre || '—'}</td>
+            <td><span class="badge badge-${s.estado_servicio.toLowerCase()}">${s.estado_servicio}</span></td>
+            <td style="font-family:var(--mono);font-size:12px;">${hora(s.hora_creacion)}</td>
+            <td>
+                ${['ASIGNADO','CREADO'].includes(s.estado_servicio) ? `
+                <button class="btn btn-success btn-sm" onclick="cambiarEstado(${s.id_servicio},'REALIZADO')">✓</button>
+                <button class="btn btn-danger btn-sm" onclick="cambiarEstado(${s.id_servicio},'CANCELADO')">✗</button>
+                ` : ''}
+            </td>
+        </tr>
+    `).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px;">Sin servicios</td></tr>';
+}
+
+async function cambiarEstado(id, estado) {
+    await api('PUT', `/servicios/${id}/estado`, { estado });
+    toast(`Servicio ${estado.toLowerCase()}`, estado === 'REALIZADO' ? 'success' : 'error');
+    cargarServicios();
+    cargarDespacho();
+}
+
+// ===== UNIDADES =====
+async function cargarUnidades() {
+    const data = await api('GET', '/unidades');
+    const tbody = document.getElementById('unidades-tabla');
+    if (!data) return;
+    tbody.innerHTML = data.map(u => `
+        <tr>
+            <td style="font-family:var(--mono);font-weight:700;color:var(--accent)">${u.numero_unidad}</td>
+            <td style="font-family:var(--mono)">${u.placa}</td>
+            <td><span class="badge badge-${u.tipo_unidad.toLowerCase()}">${u.tipo_unidad}</span></td>
+            <td>${u.nombre_socio || u.nombre_concesionario || '—'}</td>
+            <td><span class="badge ${u.estado_turno ? 'badge-activo' : 'badge-inactivo'}">${u.estado_turno ? 'En turno' : 'Fuera'}</span></td>
+            <td><span class="badge badge-${u.estado.toLowerCase()}">${u.estado}</span></td>
+            <td>
+                ${!u.estado_turno && u.estado === 'ACTIVO' ?
+                    `<button class="btn btn-success btn-sm" onclick="ingresarUnidadDirecto(${u.id_unidad})">F4 Ingresar</button>` :
+                    u.estado_turno ? `<button class="btn btn-danger btn-sm" onclick="sacarUnidad(${u.id_unidad})">Sacar</button>` : ''
+                }
+            </td>
+        </tr>
+    `).join('');
+}
+
+async function ingresarUnidadDirecto(id) {
+    await api('POST', `/unidades/${id}/ingresar`, {});
+    toast('Unidad ingresada', 'success');
+    cargarUnidades();
+    cargarDespacho();
+}
+
+async function sacarUnidad(id) {
+    await api('POST', `/unidades/${id}/salir`, {});
+    toast('Unidad retirada del turno', 'info');
+    cargarUnidades();
+    cargarDespacho();
+}
+
+async function guardarUnidad() {
+    const body = {
+        numero_unidad: document.getElementById('nu-numero').value,
+        placa:         document.getElementById('nu-placa').value.toUpperCase(),
+        tipo_unidad:   document.getElementById('nu-tipo').value,
+        id_socio:      document.getElementById('nu-socio').value || null
+    };
+    if (!body.numero_unidad || !body.placa) return toast('Número y placa requeridos', 'error');
+    const data = await api('POST', '/unidades', body);
+    if (data && data.id_unidad) {
+        toast('Unidad registrada', 'success');
+        closeModal('modal-nueva-unidad');
+        cargarUnidades();
+    } else toast(data?.error || 'Error', 'error');
+}
+
+// ===== CONDUCTORES =====
+async function cargarConductores() {
+    const data = await api('GET', '/conductores');
+    const tbody = document.getElementById('conductores-tabla');
+    if (!data) return;
+    tbody.innerHTML = data.map(c => `
+        <tr>
+            <td style="font-weight:500">${c.nombre}</td>
+            <td style="font-family:var(--mono)">${c.cedula}</td>
+            <td style="font-family:var(--mono)">${c.telefono || '—'}</td>
+            <td><span class="badge badge-${c.tipo_conductor.toLowerCase()}">${c.tipo_conductor}</span></td>
+            <td>${c.nombre_socio || '—'}</td>
+            <td><span class="badge badge-${c.estado.toLowerCase()}">${c.estado}</span></td>
+        </tr>
+    `).join('');
+}
+
+async function guardarConductor() {
+    const body = {
+        nombre:         document.getElementById('nc-nombre').value,
+        cedula:         document.getElementById('nc-cedula').value,
+        telefono:       document.getElementById('nc-telefono').value,
+        whatsapp:       document.getElementById('nc-whatsapp').value,
+        tipo_conductor: document.getElementById('nc-tipo').value,
+        id_socio:       document.getElementById('nc-socio').value || null
+    };
+    if (!body.nombre || !body.cedula) return toast('Nombre y cédula requeridos', 'error');
+    const data = await api('POST', '/conductores', body);
+    if (data && data.id_conductor) {
+        toast('Conductor registrado', 'success');
+        closeModal('modal-nuevo-conductor');
+        cargarConductores();
+        cargarDatosBase();
+    } else toast(data?.error || 'Error', 'error');
+}
+
+// ===== SOCIOS =====
+async function cargarSocios() {
+    const data = await api('GET', '/socios');
+    const tbody = document.getElementById('socios-tabla');
+    if (!data) return;
+    tbody.innerHTML = data.map(s => `
+        <tr>
+            <td style="font-weight:500">${s.nombre}</td>
+            <td style="font-family:var(--mono)">${s.cedula}</td>
+            <td style="font-family:var(--mono)">${s.telefono || '—'}</td>
+            <td>${s.direccion || '—'}</td>
+            <td style="font-family:var(--mono)">${s.fecha_ingreso?.split('T')[0] || '—'}</td>
+            <td><span class="badge badge-${s.estado.toLowerCase()}">${s.estado}</span></td>
+        </tr>
+    `).join('');
+}
+
+async function guardarSocio() {
+    const body = {
+        nombre:    document.getElementById('nso-nombre').value,
+        cedula:    document.getElementById('nso-cedula').value,
+        telefono:  document.getElementById('nso-telefono').value,
+        direccion: document.getElementById('nso-direccion').value
+    };
+    if (!body.nombre || !body.cedula) return toast('Nombre y cédula requeridos', 'error');
+    const data = await api('POST', '/socios', body);
+    if (data && data.id_socio) {
+        toast('Socio registrado', 'success');
+        closeModal('modal-nuevo-socio');
+        cargarSocios();
+        cargarDatosBase();
+    } else toast(data?.error || 'Error', 'error');
+}
+
+// ===== PAGOS =====
+async function cargarPagos() {
+    const mes  = document.getElementById('filtro-mes').value;
+    const anio = document.getElementById('filtro-anio').value;
+    const data = await api('GET', `/pagos?mes=${mes}&anio=${anio}`);
+    const tbody = document.getElementById('pagos-tabla');
+    if (!data) return;
+    const meses = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    tbody.innerHTML = data.map(p => `
+        <tr>
+            <td style="font-family:var(--mono);color:var(--accent)">${p.numero_unidad}</td>
+            <td style="font-family:var(--mono)">${p.placa}</td>
+            <td>${p.socio_nombre || '—'}</td>
+            <td>${meses[p.mes]} ${p.anio}</td>
+            <td style="font-family:var(--mono)">$${parseFloat(p.valor).toFixed(2)}</td>
+            <td><span class="badge badge-${p.estado_pago === 'PAGADO' ? 'activo' : p.estado_pago === 'ATRASADO' ? 'cancelado' : 'reasignado'}">${p.estado_pago}</span></td>
+            <td style="font-family:var(--mono);font-size:12px">${p.fecha_pago ? p.fecha_pago.split('T')[0] : '—'}</td>
+            <td>
+                ${p.estado_pago !== 'PAGADO' ?
+                    `<button class="btn btn-success btn-sm" onclick="registrarPago(${p.id_unidad},${p.mes},${p.anio})">Cobrar</button>` : ''
+                }
+            </td>
+        </tr>
+    `).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px;">Sin registros de pagos para este período</td></tr>';
+}
+
+async function registrarPago(id_unidad, mes, anio) {
+    const valor = prompt('Valor a cobrar:');
+    if (!valor) return;
+    await api('POST', '/pagos', { id_unidad, mes, anio, valor: parseFloat(valor), tipo_pago: 'EFECTIVO' });
+    toast('Pago registrado', 'success');
+    cargarPagos();
+}
+
+// ===== MODALES =====
+function openModal(id) {
+    document.getElementById(id).classList.add('open');
+    if (id === 'modal-f4') abrirF4();
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+}
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => {
+        if (e.target === m) m.classList.remove('open');
+    });
+});
+
+// ===== TOAST =====
+function toast(msg, type = 'info') {
+    const el = document.createElement('div');
+    el.className = `toast toast-${type}`;
+    el.textContent = msg;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+}
+
+// ===== HELPERS =====
+function hora(ts) {
+    if (!ts) return '—';
+    return new Date(ts).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' });
+}
+
+// ===== INICIO =====
+if (TOKEN && USER) {
+    iniciarApp();
+}
+</script>
+</body>
+</html>
